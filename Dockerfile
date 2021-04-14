@@ -68,7 +68,7 @@ COPY --from=kernel /boot /os/boot
 ADD config/grub.cfg /os/boot/grub/grub.cfg
 
 # Create ISO
-RUN mkdir -p /out && grub-mkrescue -o /out/linux.iso /os/. -- -volid RBOS -joliet on && [ -e /out/linux.iso ]
+RUN mkdir -p /out && grub-mkrescue -o /out/linux.iso /os/. -- -volid Linux -joliet on && [ -e /out/linux.iso ]
 
 # ----------------------------------------------------------
 # Finish line
