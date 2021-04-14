@@ -61,8 +61,8 @@ COPY --from=base / /os
 
 # Copy kernel
 COPY --from=kernel /boot /os/boot
+COPY --from=kernel /lib/modules /os/lib/modules
 # COPY --from=kernel /lib/firmware /os/lib/firmware
-# COPY --from=kernel /lib/modules /os/lib/modules
 
 # Setup grub
 ADD config/grub.cfg /os/boot/grub/grub.cfg
