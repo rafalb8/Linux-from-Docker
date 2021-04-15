@@ -46,7 +46,7 @@ RUN apt update && apt -y --no-install-recommends install linux-image-generic ini
 FROM alpine:edge as builder
 
 # Add packages
-RUN apk --no-cache add grub grub-bios xorriso mtools
+RUN apk --no-cache add grub grub-efi grub-bios xorriso mtools
 
 # Copy base image
 COPY --from=base / /os
@@ -57,17 +57,17 @@ COPY --from=kernel /lib/modules /os/lib/modules
 # COPY --from=kernel /lib/firmware /os/lib/firmware
 
 # Apply overlay
-COPY overlay /
+COPY overlay /os
 
 # Setup grub
 ADD config/grub.cfg /os/boot/grub/grub.cfg
 
 # Create ISO
-RUN mkdir -p /out && grub-mkrescue -o /out/linux.iso /os/. -- -volid LFD && [ -e /out/linux.iso ]
+RUN mkdir -p /out && grub-mkrescue /os -o /out/linux.iso -V LFD && [ -e /out/linux.iso ]
 
 # ----------------------------------------------------------
 # Finish line
 # ----------------------------------------------------------
 
 FROM scratch as final
-COPY --from=builder /out/linux.iso /
+COPY --from=builder /out/ /

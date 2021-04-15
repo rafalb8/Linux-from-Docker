@@ -9,4 +9,11 @@ Dockerfile builds Alpine Linux iso with kernel from Ubuntu
 Just run ```build.sh```
 
 # Try it out in qemu
-Run script ```qemu.sh```
+```bash
+Run qemu with UEFI
+./qemu.sh efi
+
+Run qemu with BIOS
+./qemu
+```
+
