@@ -6,33 +6,25 @@ FROM alpine:edge as base
 
 # Add packages
 RUN apk --no-cache add \
-    busybox-initscripts \
     bash \
     bash-completion \
     coreutils \
     findutils \
+    util-linux \
     connman \
-    curl \
     dbus \
+    curl \
     dmidecode \
     htop \
-    iproute2 \
-    iptables \
     ncurses \
-    ncurses-terminfo \
     openrc \
     openssh-server \
+    openssh-client \
     parted \
     procps \
-    qemu-guest-agent \
-    rsync \
-    strace \
-    tar \
-    tzdata \
-    util-linux \
     vim \
     nano \
-    xz
+    qemu-guest-agent
 
 # Setup user
 RUN echo "root:root" | chpasswd
@@ -54,7 +46,7 @@ RUN apt update && apt -y --no-install-recommends install linux-image-generic ini
 FROM alpine:edge as builder
 
 # Add packages
-RUN apk --no-cache add parted grub grub-bios xorriso
+RUN apk --no-cache add grub grub-bios xorriso mtools
 
 # Copy base image
 COPY --from=base / /os
@@ -64,11 +56,14 @@ COPY --from=kernel /boot /os/boot
 COPY --from=kernel /lib/modules /os/lib/modules
 # COPY --from=kernel /lib/firmware /os/lib/firmware
 
+# Apply overlay
+COPY overlay /
+
 # Setup grub
 ADD config/grub.cfg /os/boot/grub/grub.cfg
 
 # Create ISO
-RUN mkdir -p /out && grub-mkrescue -o /out/linux.iso /os/. -- -volid Linux -joliet on && [ -e /out/linux.iso ]
+RUN mkdir -p /out && grub-mkrescue -o /out/linux.iso /os/. -- -volid LFD && [ -e /out/linux.iso ]
 
 # ----------------------------------------------------------
 # Finish line
