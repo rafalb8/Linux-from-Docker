@@ -35,9 +35,19 @@ RUN sed -i 's/\/bin\/ash/\/bin\/bash/' /etc/passwd
 # ----------------------------------------------------------
 # Kernel stage
 # ----------------------------------------------------------
-FROM ubuntu:focal as kernel
 
-RUN apt update && apt -y --no-install-recommends install linux-image-generic initramfs-tools
+FROM alpine:edge as kernel
+RUN apk --no-cache add mkinitfs xz
+
+# Download dCore-focal64
+ADD http://www.tinycorelinux.net/dCore/x86_64/release/dCore-focal64/vmlinuz-focal64 /boot/vmlinuz
+ADD http://www.tinycorelinux.net/dCore/x86_64/release/dCore-focal64/dCore-focal64.gz /core/dcore.gz
+
+# Unpack and move modules
+RUN cd /core && gzip -d dcore.gz && cpio -idv <dcore && mv lib/modules /lib/modules
+
+# Build initramfs
+RUN version=$(strings /boot/vmlinuz | grep tinycore | awk '{print $1}') && mkinitfs -C xz -o /boot/initrd $version
 
 # ----------------------------------------------------------
 # Builder stage
