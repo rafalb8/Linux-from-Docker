@@ -1,3 +1,3 @@
 #!/bin/bash
 
-qemu-system-x86_64 -hda out/linux.iso -m 1G
+qemu-system-x86_64 -drive file=out/linux.iso,format=raw -m 1G
