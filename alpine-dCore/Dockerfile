@@ -52,7 +52,7 @@ RUN cd /core && gzip -d dcore.gz && cpio -idv <dcore && mv lib/modules /lib/modu
 RUN mkinitfs -C xz -o /boot/initrd $(cat /boot/version)
 
 # Ram version
-copy config/initram /initram
+copy alpine-dCore/config/initram /initram
 RUN mkinitfs -C xz -o /boot/initrd-ram -i /initram $(cat /boot/version)
 
 # ----------------------------------------------------------
@@ -71,7 +71,7 @@ COPY --from=base / /os
 COPY overlay /os
 
 # Setup grub
-ADD config/grub.cfg /os/boot/grub/grub.cfg
+ADD alpine-dCore/config/grub.cfg /os/boot/grub/grub.cfg
 
 # Copy kernel
 COPY --from=kernel /boot /os/boot

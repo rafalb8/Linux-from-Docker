@@ -3,10 +3,16 @@ Build custom Linux iso with Docker
 
 Inspired by: [docker-to-linux](https://github.com/iximiuz/docker-to-linux)
 
-Dockerfile builds Alpine Linux iso with dCore-focal64 kernel
+Possible images
+* alpine-dCore  (Alpine rootfs with dCore-focal64 kernel)
+* alpine-ubuntu (Alpine rootfs with ubuntu-focal kernel)
 
 # Building
-Just run ```build.sh```
+
+Run
+```bash
+build.sh image-version
+```
 
 # Try it out in qemu
 ```bash
