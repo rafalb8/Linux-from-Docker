@@ -4,27 +4,21 @@
 
 FROM alpine:edge as base
 
+RUN apk --no-cache upgrade
+
 # Add packages
 RUN apk --no-cache add \
     bash \
     bash-completion \
-    coreutils \
-    findutils \
-    util-linux \
     connman \
     dbus \
-    curl \
+    eudev \
     htop \
     ncurses \
     openrc \
-    openssh-server \
-    openssh-client \
     parted \
     vim \
-    nano \
-    qemu-guest-agent
-
-RUN apk --no-cache upgrade
+    nano
 
 # Setup user
 RUN echo "root:root" | chpasswd
@@ -32,12 +26,23 @@ RUN echo "root:root" | chpasswd
 # Set Bash as default
 RUN sed -i 's/\/bin\/ash/\/bin\/bash/' /etc/passwd
 
+# Services
+RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers
+
+RUN ln -s /etc/init.d/bootmisc /etc/runlevels/boot/bootmisc
+RUN ln -s /etc/init.d/hostname /etc/runlevels/boot/hostname
+RUN ln -s /etc/init.d/modules /etc/runlevels/boot/modules
+RUN ln -s /etc/init.d/connman /etc/runlevels/boot/connman
+
+# Modules
+RUN >/etc/modules
+
 # ----------------------------------------------------------
 # Kernel stage
 # ----------------------------------------------------------
 
 FROM alpine:edge as kernel
-RUN apk --no-cache add mkinitfs xz
+RUN apk --no-cache add mkinitfs
 
 # Download dCore-focal64
 ADD http://www.tinycorelinux.net/dCore/x86_64/release/dCore-focal64/vmlinuz-focal64 /boot/vmlinuz
@@ -49,11 +54,11 @@ RUN strings /boot/vmlinuz | grep tinycore | awk '{print $1}' >/boot/version
 RUN cd /core && gzip -d dcore.gz && cpio -idv <dcore && mv lib/modules /lib/modules
 
 # Build initramfs
-RUN mkinitfs -C xz -o /boot/initrd $(cat /boot/version)
+RUN mkinitfs -C gzip -o /boot/initrd $(cat /boot/version)
 
 # Ram version
 copy alpine-dCore/config/initram /initram
-RUN mkinitfs -C xz -o /boot/initrd-ram -i /initram $(cat /boot/version)
+RUN mkinitfs -C gzip -o /boot/initrd-ram -i /initram $(cat /boot/version)
 
 # ----------------------------------------------------------
 # Builder stage
@@ -76,7 +81,6 @@ ADD alpine-dCore/config/grub.cfg /os/boot/grub/grub.cfg
 # Copy kernel
 COPY --from=kernel /boot /os/boot
 COPY --from=kernel /lib/modules /os/lib/modules
-# COPY --from=kernel /lib/firmware /os/lib/firmware
 
 # Create ISO
 RUN mkdir -p /out && grub-mkrescue /os -o /out/linux.iso -V LFD && [ -e /out/linux.iso ]

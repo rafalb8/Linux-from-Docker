@@ -28,8 +28,6 @@ mount -t devpts -o gid=5,mode=0620,noexec,nosuid devpts /dev/pts
 [ -d /dev/shm ] || mkdir /dev/shm
 mount -t tmpfs -o nodev,nosuid,noexec shm /dev/shm
 
-# ln -s /proc/mounts /etc/mtab
-
 mount -t tmpfs none /sysroot
 
 echo 'Mount root'
