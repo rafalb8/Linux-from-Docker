@@ -27,12 +27,11 @@ RUN echo "root:root" | chpasswd
 RUN sed -i 's/\/bin\/ash/\/bin\/bash/' /etc/passwd
 
 # Services
-RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers
-
-RUN ln -s /etc/init.d/bootmisc /etc/runlevels/boot/bootmisc
-RUN ln -s /etc/init.d/hostname /etc/runlevels/boot/hostname
-RUN ln -s /etc/init.d/modules /etc/runlevels/boot/modules
-RUN ln -s /etc/init.d/connman /etc/runlevels/boot/connman
+RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers && \
+    ln -s /etc/init.d/bootmisc /etc/runlevels/boot/bootmisc && \
+    ln -s /etc/init.d/hostname /etc/runlevels/boot/hostname && \
+    ln -s /etc/init.d/modules /etc/runlevels/boot/modules && \
+    ln -s /etc/init.d/connman /etc/runlevels/boot/connman
 
 # Modules
 RUN >/etc/modules
