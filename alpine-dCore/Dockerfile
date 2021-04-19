@@ -36,6 +36,9 @@ RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers && \
 # Modules
 RUN >/etc/modules
 
+# Apply overlay
+COPY overlay /
+
 # ----------------------------------------------------------
 # Kernel stage
 # ----------------------------------------------------------
@@ -53,11 +56,8 @@ RUN strings /boot/vmlinuz | grep tinycore | awk '{print $1}' >/boot/version
 RUN cd /core && gzip -d dcore.gz && cpio -idv <dcore && mv lib/modules /lib/modules
 
 # Build initramfs
-RUN mkinitfs -C gzip -o /boot/initrd $(cat /boot/version)
-
-# Ram version
-copy alpine-dCore/config/initram /initram
-RUN mkinitfs -C gzip -o /boot/initrd-ram -i /initram $(cat /boot/version)
+copy alpine-dCore/init /init
+RUN mkinitfs -C gzip -o /boot/initrd -i /init $(cat /boot/version)
 
 # ----------------------------------------------------------
 # Builder stage
@@ -66,20 +66,22 @@ RUN mkinitfs -C gzip -o /boot/initrd-ram -i /initram $(cat /boot/version)
 FROM alpine:edge as builder
 
 # Add packages
-RUN apk --no-cache add grub grub-efi grub-bios xorriso mtools
-
-# Copy base image
-COPY --from=base / /os
-
-# Apply overlay
-COPY overlay /os
-
-# Setup grub
-ADD alpine-dCore/config/grub.cfg /os/boot/grub/grub.cfg
+RUN apk --no-cache add grub grub-efi grub-bios xorriso mtools cpio
 
 # Copy kernel
 COPY --from=kernel /boot /os/boot
-COPY --from=kernel /lib/modules /os/lib/modules
+
+# Copy base image
+COPY --from=base / /rootfs
+
+# Copy kernel modules
+COPY --from=kernel /lib/modules /rootfs/lib/modules
+
+# Pack rootfs
+RUN cd /rootfs && find . | cpio -oH newc | gzip > /os/rootfs.gz
+
+# Setup grub
+ADD config/grub.cfg /os/boot/grub/grub.cfg
 
 # Create ISO
 RUN mkdir -p /out && grub-mkrescue /os -o /out/linux.iso -V LFD && [ -e /out/linux.iso ]

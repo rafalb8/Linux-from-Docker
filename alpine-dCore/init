@@ -1,8 +1,8 @@
 #!/bin/sh
-echo 'Setup dirs'
+# Setup dirs
 /bin/busybox mkdir -p /usr/bin /usr/sbin /proc /sys /dev /sysroot /media/cdrom /media/usb /tmp /run/cryptsetup
 
-echo 'Busybox'
+# Busybox
 /bin/busybox --install -s
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -12,7 +12,7 @@ export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 # sys dev
 mount -t sysfs -o noexec,nosuid,nodev sysfs /sys
 mount -t devtmpfs -o exec,nosuid,mode=0755,size=2M devtmpfs /dev 2>/dev/null ||
-    mount -t tmpfs -o exec,nosuid,mode=0755,size=2M tmpfs /dev
+	mount -t tmpfs -o exec,nosuid,mode=0755,size=2M tmpfs /dev
 
 # kmsg
 [ -c /dev/kmsg ] || mknod -m 660 /dev/kmsg c 1 11
@@ -30,22 +30,26 @@ mount -t tmpfs -o nodev,nosuid,noexec shm /dev/shm
 
 mount -t tmpfs none /sysroot
 
-echo 'Mount root'
+# Mount root
 mkdir -p /rom
 mount "LABEL=LFD" /rom
 
-echo 'Copy to ram'
-cp -rf /rom/. /sysroot/.
-
+# Copy to ram
+cp -rf /rom/rootfs.gz /sysroot/.
 umount /rom
 
-echo 'Move dirs'
-cat /proc/mounts | while read DEV DIR TYPE OPTS ; do
-		if [ "$DIR" != "/" -a "$DIR" != "/sysroot" -a -d "$DIR" ]; then
-			mkdir -p /sysroot/$DIR
-			mount -o move $DIR /sysroot/$DIR
-		fi
-	done
+# Unpack rootfs
+cd /sysroot
+gzip -d rootfs.gz && cpio -id <rootfs && rm rootfs
+cd ..
 
-echo 'Switch root'
+# Move dirs
+cat /proc/mounts | while read DEV DIR TYPE OPTS; do
+	if [ "$DIR" != "/" -a "$DIR" != "/sysroot" -a -d "$DIR" ]; then
+		mkdir -p /sysroot/$DIR
+		mount -o move $DIR /sysroot/$DIR
+	fi
+done
+
+# Switch root
 exec /bin/busybox switch_root /sysroot /sbin/init
