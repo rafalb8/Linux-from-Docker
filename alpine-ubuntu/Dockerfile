@@ -4,33 +4,38 @@
 
 FROM alpine:edge as base
 
+RUN apk --no-cache upgrade
+
 # Add packages
 RUN apk --no-cache add \
     bash \
     bash-completion \
-    coreutils \
-    findutils \
-    util-linux \
     connman \
     dbus \
-    curl \
+    eudev \
     htop \
     ncurses \
     openrc \
-    openssh-server \
-    openssh-client \
     parted \
     vim \
-    nano \
-    qemu-guest-agent
-
-RUN apk --no-cache upgrade
+    nano
 
 # Setup user
 RUN echo "root:root" | chpasswd
 
 # Set Bash as default
 RUN sed -i 's/\/bin\/ash/\/bin\/bash/' /etc/passwd
+
+# Services
+RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers
+
+RUN ln -s /etc/init.d/bootmisc /etc/runlevels/boot/bootmisc
+RUN ln -s /etc/init.d/hostname /etc/runlevels/boot/hostname
+RUN ln -s /etc/init.d/modules /etc/runlevels/boot/modules
+RUN ln -s /etc/init.d/connman /etc/runlevels/boot/connman
+
+# Modules
+RUN >/etc/modules
 
 # ----------------------------------------------------------
 # Kernel stage
