@@ -50,14 +50,12 @@ RUN apk --no-cache add mkinitfs
 ADD http://www.tinycorelinux.net/dCore/x86_64/release/dCore-focal64/vmlinuz-focal64 /boot/vmlinuz
 ADD http://www.tinycorelinux.net/dCore/x86_64/release/dCore-focal64/dCore-focal64.gz /core/dcore.gz
 
-RUN strings /boot/vmlinuz | grep tinycore | awk '{print $1}' >/boot/version
-
 # Unpack and move modules
 RUN cd /core && gzip -d dcore.gz && cpio -idv <dcore && mv lib/modules /lib/modules
 
 # Build initramfs
 copy alpine-dCore/init /init
-RUN mkinitfs -C gzip -o /boot/initrd -i /init $(cat /boot/version)
+RUN mkinitfs -C gzip -o /boot/initrd -i /init $(ls /lib/modules)
 
 # ----------------------------------------------------------
 # Builder stage

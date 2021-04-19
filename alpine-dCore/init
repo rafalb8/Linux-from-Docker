@@ -52,4 +52,4 @@ cat /proc/mounts | while read DEV DIR TYPE OPTS; do
 done
 
 # Switch root
-exec /bin/busybox switch_root /sysroot /sbin/init
+exec /bin/busybox switch_root /sysroot /sbin/init || exec /bin/busybox sh
