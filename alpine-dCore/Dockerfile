@@ -61,7 +61,7 @@ RUN mkinitfs -C gzip -o /boot/initrd -i /init $(ls /lib/modules)
 # Builder stage
 # ----------------------------------------------------------
 
-FROM alpine:edge as builder
+FROM alpine:3.13 as builder
 
 # Add packages
 RUN apk --no-cache add grub grub-efi grub-bios xorriso mtools cpio
