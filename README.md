@@ -6,6 +6,7 @@ Inspired by: [docker-to-linux](https://github.com/iximiuz/docker-to-linux)
 Possible images
 * alpine-dCore  (Alpine rootfs with dCore-focal64 kernel)
 * alpine-ubuntu (Alpine rootfs with ubuntu-focal kernel)
+* alpine-arch   (Alpine rootfs with Arch Linux kernel)
 
 # Building
 
