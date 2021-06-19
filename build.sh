@@ -24,7 +24,7 @@ EOF
 getImages
 
 # Prepare dir
-rm -rf outecho
+rm -rf out
 mkdir -p out
 
 selected="$1"
