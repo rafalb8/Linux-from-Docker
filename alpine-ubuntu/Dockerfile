@@ -3,28 +3,13 @@
 # ----------------------------------------------------------
 
 FROM alpine:edge as base
-
 RUN apk --no-cache upgrade
 
 # Add packages
-RUN apk --no-cache add \
-    bash \
-    bash-completion \
-    connman \
-    dbus \
-    eudev \
-    htop \
-    ncurses \
-    openrc \
-    parted \
-    vim \
-    nano
+RUN apk --no-cache add connman dbus eudev htop ncurses openrc vim nano
 
 # Setup user
 RUN echo "root:root" | chpasswd
-
-# Set Bash as default
-RUN sed -i 's/\/bin\/ash/\/bin\/bash/' /etc/passwd
 
 # Services
 RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers && \
@@ -36,39 +21,61 @@ RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers && \
 # Modules
 RUN >/etc/modules
 
+# Apply overlay
+COPY overlay /
+
 # ----------------------------------------------------------
 # Kernel stage
 # ----------------------------------------------------------
 
-FROM ubuntu:focal as kernel
-RUN apt update && apt -y --no-install-recommends install linux-image-generic initramfs-tools
-RUN mv /boot/initrd.img /boot/initrd
+FROM ubuntu:focal as kernel-ubuntu
+RUN apt update && apt -y --no-install-recommends install linux-image-generic
+
+# Generate initramfs
+FROM archlinux:base as kernel
+RUN pacman -Sy --noconfirm mkinitcpio
+
+# Configure mkinitcpio.conf
+COPY config/mkinitcpio.conf /etc/mkinitcpio.conf
+
+# Add Build hook
+COPY config/buildhook.sh /etc/initcpio/install/rootfs
+
+# Add Runtime hook
+COPY config/runhook.sh /etc/initcpio/hooks/rootfs
+
+# Copy kernel with modules
+COPY --from=kernel-ubuntu /boot /boot
+COPY --from=kernel-ubuntu /lib/modules /lib/modules
+
+# Build initramfs
+RUN mkinitcpio --generate /boot/initrd.img --kernel $(ls /lib/modules)
 
 # ----------------------------------------------------------
 # Builder stage
 # ----------------------------------------------------------
 
-FROM alpine:3.13 as builder
+FROM alpine:3.14 as builder
 
 # Add packages
-RUN apk --no-cache add grub grub-efi grub-bios xorriso mtools
+RUN apk --no-cache add grub grub-efi grub-bios xorriso mtools xz squashfs-tools
+
+# Copy kernel and initrd
+COPY --from=kernel /boot /os/boot
+
+# Add modules
+COPY --from=kernel /lib/modules /modules
+RUN mksquashfs /modules /os/modules.img -comp xz
 
 # Copy base image
-COPY --from=base / /os
-
-# Apply overlay
-COPY overlay /os
+COPY --from=base / /rootfs
+RUN mksquashfs /rootfs /os/rootfs.img -comp xz
 
 # Setup grub
 ADD config/grub.cfg /os/boot/grub/grub.cfg
 
-# Copy kernel
-COPY --from=kernel /boot /os/boot
-COPY --from=kernel /lib/modules /os/lib/modules
-# COPY --from=kernel /lib/firmware /os/lib/firmware
-
 # Create ISO
-RUN mkdir -p /out && grub-mkrescue /os -o /out/linux.iso -V LFD && [ -e /out/linux.iso ]
+RUN mkdir -p /out && grub-mkrescue /os --compress=xz -o /out/linux.iso -V LFD && [ -e /out/linux.iso ]
 
 # ----------------------------------------------------------
 # Finish line

@@ -3,7 +3,6 @@
 # ----------------------------------------------------------
 
 FROM alpine:edge as base
-
 RUN apk --no-cache upgrade
 
 # Add packages
@@ -36,25 +35,25 @@ RUN pacman -Sy --noconfirm linux
 RUN rm /boot/*.img
 
 # Configure mkinitcpio.conf
-COPY alpine-arch/mkinitcpio.conf /etc/mkinitcpio.conf
+COPY config/mkinitcpio.conf /etc/mkinitcpio.conf
 
 # Add Build hook
-COPY alpine-arch/buildhook.sh /etc/initcpio/install/rootfs
+COPY config/buildhook.sh /etc/initcpio/install/rootfs
 
 # Add Runtime hook
-COPY alpine-arch/runhook.sh /etc/initcpio/hooks/rootfs
+COPY config/runhook.sh /etc/initcpio/hooks/rootfs
 
 # Rename files
 RUN for f in /boot/*; do mv $f $(echo $f | awk -F- '{print $1}'); done
 
 # Build initramfs
-RUN mkinitcpio --generate /boot/initrd --kernel $(ls /lib/modules)
+RUN mkinitcpio --generate /boot/initrd.img --kernel $(ls /lib/modules)
 
 # ----------------------------------------------------------
 # Builder stage
 # ----------------------------------------------------------
 
-FROM alpine:3.13 as builder
+FROM alpine:3.14 as builder
 
 # Add packages
 RUN apk --no-cache add grub grub-efi grub-bios xorriso mtools xz squashfs-tools
