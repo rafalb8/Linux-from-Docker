@@ -1,0 +1,19 @@
+# ----------------------------------------------------------
+# Kernel stage
+# ----------------------------------------------------------
+
+FROM debian:sid as kernel
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /boot
+
+# Download Kernel
+RUN apt update && apt -y --no-install-recommends --download-only install linux-image-amd64
+
+# Unpack kernel
+RUN dpkg --unpack /var/cache/apt/archives/*.deb
+RUN depmod $(ls /lib/modules)
+
+# Rename files
+RUN for f in *; do mv $f $(echo $f | awk -F- '{print $1}'); done

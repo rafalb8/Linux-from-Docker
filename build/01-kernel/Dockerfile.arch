@@ -1,0 +1,14 @@
+# ----------------------------------------------------------
+# Kernel stage
+# ----------------------------------------------------------
+
+FROM archlinux:base as kernel
+RUN pacman -Sy --noconfirm linux
+
+WORKDIR /boot
+
+# Remove old initramfs
+RUN rm *.img
+
+# Rename kernel
+RUN mv vmlinuz-* vmlinuz
