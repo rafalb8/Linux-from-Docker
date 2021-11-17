@@ -18,7 +18,7 @@ Run
 build.sh kernel
 ```
 
-# Try it out in qemu
+# Try it out in QEMU
 ```bash
 Run qemu with UEFI
 ./qemu.sh efi
@@ -26,4 +26,5 @@ Run qemu with UEFI
 Run qemu with BIOS
 ./qemu
 ```
+Default root password: toor
 

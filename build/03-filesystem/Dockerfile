@@ -9,7 +9,7 @@ RUN apk --no-cache upgrade
 RUN apk --no-cache add connman dbus eudev htop ncurses openrc vim nano
 
 # Setup user
-RUN echo "root:root" | chpasswd
+RUN echo "root:toor" | chpasswd
 
 # Services
 RUN ln -s /etc/init.d/hwdrivers /etc/runlevels/sysinit/hwdrivers && \
