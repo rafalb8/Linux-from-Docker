@@ -6,14 +6,14 @@ Inspired by: [docker-to-linux](https://github.com/iximiuz/docker-to-linux)
 To build image select one of available kernels and filesystems
 
 Available kernels
-* arch   (Arch Linux kernel)
-* dCore  (dCore-focal64 kernel)
-* debian (Debian kernel)
-* ubuntu (ubuntu-impish kernel)
+* arch   (Arch Linux)
+* dCore  (Tiny Core Linux 'dCore-focal64')
+* debian (Debian Unstable)
+* ubuntu (Ubuntu 21.10 Impish Indri)
 
 Available filesystems
-* alpine
-* ubuntu
+* alpine (Alpine Linux)
+* ubuntu (Ubuntu 21.10 Impish Indri)
 
 # Building
 
