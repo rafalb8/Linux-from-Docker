@@ -13,12 +13,17 @@ Available kernels
 
 Available filesystems
 * alpine
+* ubuntu
 
 # Building
 
-Run
+To build image, run ./build.sh script with selected kernel and filesystem
 ```bash
-build.sh kernel filesystem
+./build.sh kernel filesystem
+```
+Example: Building image with debian kernel and ubuntu filesystem
+```bash
+./build.sh debian ubuntu
 ```
 
 # Try build image in QEMU

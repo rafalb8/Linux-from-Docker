@@ -1,0 +1,21 @@
+# ----------------------------------------------------------
+# Base image stage
+# ----------------------------------------------------------
+
+FROM ubuntu:impish as base
+RUN apt update
+
+# Add packages
+RUN apt install -y systemd-sysv netscript
+
+# Replace symlink with real file
+RUN rm /sbin/init && cp /lib/systemd/systemd /sbin/init
+
+# Setup user
+RUN echo "root:toor" | chpasswd
+
+# Modules
+RUN >/etc/modules
+
+# Apply overlay
+COPY overlay /
