@@ -26,7 +26,7 @@ Example: Building image with debian kernel and ubuntu filesystem
 ./build.sh debian ubuntu
 ```
 
-# Try build image in QEMU
+# Running built image in QEMU
 ```bash
 Run QEMU with UEFI
 ./qemu.sh efi
