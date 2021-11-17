@@ -13,4 +13,3 @@ ADD http://www.tinycorelinux.net/dCore/x86_64/release/dCore-focal64/dCore-focal6
 
 # Unpack and move modules
 RUN cd /core && gzip -d dcore.gz && cpio -idv < dcore && mv lib/modules /lib/modules
-RUN depmod $(ls /lib/modules)

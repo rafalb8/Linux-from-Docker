@@ -19,5 +19,8 @@ COPY --from=kernel /boot /boot
 COPY --from=kernel /lib/modules /lib/modules
 # COPY --from=kernel /lib/firmware /lib/firmware
 
+# Create a list of module dependencies
+RUN depmod $(ls /lib/modules)
+
 # Build initramfs
 RUN mkinitcpio --generate /boot/initrd.img --kernel $(ls /lib/modules)
