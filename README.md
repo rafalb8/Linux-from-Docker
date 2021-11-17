@@ -3,27 +3,30 @@ Build custom Linux iso with Docker
 
 Inspired by: [docker-to-linux](https://github.com/iximiuz/docker-to-linux)
 
-All images are built with Alpine rootfs 
+To build image select one of available kernels and filesystems
 
-Possible kernels
+Available kernels
 * arch   (Arch Linux kernel)
 * dCore  (dCore-focal64 kernel)
 * debian (Debian kernel)
 * ubuntu (ubuntu-impish kernel)
 
+Available filesystems
+* alpine
+
 # Building
 
 Run
 ```bash
-build.sh kernel
+build.sh kernel filesystem
 ```
 
-# Try it out in QEMU
+# Try build image in QEMU
 ```bash
-Run qemu with UEFI
+Run QEMU with UEFI
 ./qemu.sh efi
 
-Run qemu with BIOS
+Run QEMU with BIOS
 ./qemu
 ```
 Default root password: toor

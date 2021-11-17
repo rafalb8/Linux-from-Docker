@@ -2,34 +2,58 @@
 
 usage() {
     cat <<EOF
-usage: $0 [image]
-possible images : $images
+usage: $0 [kernel] [filesystem]
+available kernels : $KERNELS
+
+available filesystems : $FILESYSTEMS
+
 EOF
     exit 1
 }
 
 # --- MAIN ---
 
-# Find possible images
-for image in build/*/Dockerfile.*; do
-    images=$(echo -e "$images\n${image##*.}")
+# Find possible kernels
+for image in build/01-kernel/Dockerfile.*; do
+    KERNELS=$(echo -e "$KERNELS\n\t${image##*.}")
 done
 
-# Remove duplicates
-images=$(echo "$images" | sort -u)
+# Find possible filesystems
+for image in build/03-filesystem/Dockerfile.*; do
+    FILESYSTEMS=$(echo -e "$FILESYSTEMS\n\t${image##*.}")
+done
 
-# Select kernel
-KERNEL="$1"
+# Select kernel and filesystem
+for x in $KERNELS; do
+    if [ "$1" == $x ]; then
+        KERNEL=$x
+    fi
+done
+
+for x in $FILESYSTEMS; do
+    if [ "$2" == $x ]; then
+        FILESYSTEM=$x
+    fi
+done
 
 # Check selected image
-if [ $# = 0 ] || [ "$images" = "${images/$KERNEL/}" ]; then
+if [ $# = 0 ] || [ "$KERNEL" == "" ] || [ "$FILESYSTEM" == "" ]; then
     usage
 fi
 
 # Merge Dockerfile stages
 for stage in build/*; do
-    for file in $stage/{Dockerfile.$KERNEL,Dockerfile}; do
-        if buf=$(cat $file 2>/dev/null) ; then
+    # Kernel
+    prefix=$KERNEL
+
+    # Filesystem
+    if echo $stage | grep 03-filesystem >/dev/null; then
+        prefix=$FILESYSTEM
+    fi
+
+    # Read and merge
+    for file in $stage/{Dockerfile.$prefix,Dockerfile}; do
+        if buf=$(cat $file 2>/dev/null); then
             DOCKERFILE=$(echo -e "$DOCKERFILE\n$buf")
             break
         fi
