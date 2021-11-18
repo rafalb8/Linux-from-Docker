@@ -2,19 +2,20 @@
 
 run_latehook() {
     echo 'Moving system to ram'
-    mkdir -p /rom /rootfs
+    mkdir -p /rom /rw /rootfs
 
     # Move iso to /rom
     mount -o move /new_root /rom
 
-    # Mount tmpfs @ /new_root
-    mount -t tmpfs -o size=90% tmpfs /new_root
+    # Mount tmpfs
+    mount -t tmpfs -o size=90% tmpfs /rw
+    mkdir -p /rw/upper /rw/work
 
-    # Mount rootfs squash
+    # Mount rootfs
     mount -t squashfs /rom/rootfs.img /rootfs
 
-    # Copying rootfs
-    cp -rf /rootfs/* /new_root/.
+    # Mount overlay
+    mount -t overlay overlay -o lowerdir=/rootfs,upperdir=/rw/upper,workdir=/rw/work /new_root
 
     # Mount modules
     mkdir -p /new_root/lib/modules
