@@ -1,24 +1,18 @@
 #!/usr/bin/ash
 
 run_latehook() {
-    mkdir -p /rom /rw /rootfs
+    mkdir -p /run/rom /run/rootfs /run/upper /run/work
 
-    # Move iso to /rom
-    mount -o move /new_root /rom
-
-    # Mount tmpfs
-    mount -t tmpfs -o size=90% tmpfs /rw
-    mkdir -p /rw/upper /rw/work
+    # Move isofs
+    mount -o move /new_root /run/rom
 
     # Mount rootfs
-    mount -t squashfs /rom/rootfs.img /rootfs
+    mount -t squashfs /run/rom/rootfs.img /run/rootfs
 
     # Mount overlay
-    mount -t overlay overlay -o lowerdir=/rootfs,upperdir=/rw/upper,workdir=/rw/work /new_root
+    mount -t overlay rootfs -o lowerdir=/run/rootfs,upperdir=/run/upper,workdir=/run/work /new_root
 
     # Mount modules
     mkdir -p /new_root/lib/modules
-    mount /rom/modules.img /new_root/lib/modules
-
-    umount /rootfs
+    mount /run/rom/modules.img /new_root/lib/modules
 }
