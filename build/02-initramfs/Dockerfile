@@ -23,4 +23,4 @@ COPY --from=kernel /lib/modules /lib/modules
 RUN depmod $(ls /lib/modules)
 
 # Build initramfs
-RUN mkinitcpio --generate /boot/initrd.img --kernel $(ls /lib/modules)
+RUN mkinitcpio --generate /boot/initrd.img --kernel $(ls /lib/modules) && [ -e /boot/initrd.img ]

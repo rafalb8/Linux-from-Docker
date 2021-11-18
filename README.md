@@ -7,7 +7,7 @@ To build image select one of available kernels and filesystems
 
 Available kernels
 * arch   (Arch Linux)
-* dCore  (Tiny Core Linux 'dCore-focal64')
+* talos  ([Talos](https://www.talos.dev/) for Kubernetes)
 * debian (Debian Unstable)
 * ubuntu (Ubuntu 21.10 Impish Indri)
 
