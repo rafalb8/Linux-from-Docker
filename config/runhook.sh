@@ -1,7 +1,6 @@
 #!/usr/bin/ash
 
 run_latehook() {
-    echo 'Moving system to ram'
     mkdir -p /rom /rw /rootfs
 
     # Move iso to /rom
